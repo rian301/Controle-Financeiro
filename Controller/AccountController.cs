@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using ControleFinanceiro.Data;
 using ControleFinanceiro.Models;
 using ControleFinanceiro.ViewModels;
@@ -23,7 +24,8 @@ namespace Backoffice.Controllers
             var accounts = await context
                 .Accounts
                 .Include(x => x.Category)
-                .AsNoTracking().ToListAsync();
+                .AsNoTracking()
+                .ToListAsync();
 
             var result = Mapper.Map<List<AccountViewModel>>(accounts);
             return result;

@@ -15,7 +15,9 @@ namespace Backoffice.Controllers
     [Route("users")]
     public class UserController : Controller
     {
+
         #region GET
+
 
         [HttpGet]
         [Route("")]
@@ -40,15 +42,27 @@ namespace Backoffice.Controllers
 
         public async Task<ActionResult<UserViewModel>> GetById([FromServices] DataContext context, int id)
         {
-            var user = await context
+            try
+            {
+                AccontService _accontService = new AccontService(context);
+                var salaries  = _accontService.TotalAccounts(id);
+                var saldo = _accontService.Saldo(id);
+
+                var user = await context
                 .Users
+                .Where(x => x.Id == id)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync();
+                user.Balance = saldo;
+                // <Para onde vai ser covertido> | (Fonte de dados). Converte o () para <>
+                var result = Mapper.Map<UserViewModel>(user);
 
-            // <Para onde vai ser covertido> | (Fonte de dados). Converte o () para <>
-            var result = Mapper.Map<UserViewModel>(user);
-
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Não foi possível encontrar o usuário", ex});
+            }
         }
 
         #endregion
@@ -67,10 +81,9 @@ namespace Backoffice.Controllers
             try
             {
                 // <Para onde vai ser covertido> | (Fonte de dados). Converte o () para <>
-               var result = Mapper.Map<UserModel>(model);
+                var result = Mapper.Map<UserModel>(model);
 
-                ServiceUser _serviceUser = new ServiceUser(context);
-
+                UserService _serviceUser = new UserService(context);
                 context.Users.Add(result);
 
                 if (_serviceUser.CriarUsuario(result))
@@ -102,9 +115,6 @@ namespace Backoffice.Controllers
 
             try
             {
-
-              //  context.Entry(model).State = EntityState.Modified;
-
                 var user = await context
                     .Users
                     .Where(x => x.Id == id)
@@ -113,6 +123,7 @@ namespace Backoffice.Controllers
                 user.UserName = model.UserName;
                 user.Email = model.Email;
                 user.Password = model.Password;
+                user.Salary = model.Salary;
 
                 var result = Mapper.Map<UserViewModel>(model);
                 await context.SaveChangesAsync();

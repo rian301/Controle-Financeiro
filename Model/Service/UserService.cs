@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace ControleFinanceiro.Model.Service
 {
-    public class ServiceUser
+    public class UserService
     {
         private readonly DataContext _context;
 
-        public ServiceUser(DataContext context)
+        public UserService(DataContext context)
         {
             _context = context;
         }

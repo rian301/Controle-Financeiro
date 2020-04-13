@@ -25,6 +25,11 @@ namespace ControleFinanceiro.ViewModels
         [RegularExpression(@"^\S*$", ErrorMessage = "Não é permitido espaços")]
         public string Password { get; set; }
 
+        [Required(ErrorMessage = "Este campo é obrigatório")]
+        public float Salary { get; set; }
+
+        public float Balance { get; set; }
+
         public IList<UserCategoryModel> Categories { get; set; }
     }
 }
