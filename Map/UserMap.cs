@@ -8,8 +8,8 @@ namespace ControleFinanceiro.Map
     {
         public void Configure(EntityTypeBuilder<UserModel> builder)
         {
-            builder.HasKey(x => x.Id);
             builder.ToTable("Usuario");
+            builder.HasKey(x => x.Id);
 
             //builder.Ignore(x => x.ValidationResult);
             //builder.Ignore(x => x.CascadeMode);

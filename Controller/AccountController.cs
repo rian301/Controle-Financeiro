@@ -80,7 +80,7 @@ namespace Backoffice.Controllers
             catch (Exception ex)
             {
 
-                return BadRequest(new { message = "Não foi possível criar a conta", ex});
+                return BadRequest(new { message = "Não foi possível criar a conta", ex });
             }
         }
         #endregion
@@ -88,22 +88,27 @@ namespace Backoffice.Controllers
         #region PUT
         [HttpPut]
         [Route("{id:int}")]
-        public async Task<ActionResult<AccountViewModel>> Put([FromServices] DataContext context, int id, [FromBody] UserModel model)
+        public async Task<ActionResult<AccountViewModel>> Put([FromServices] DataContext context, int id, [FromBody] AccountModel model)
         {
             // Verifica se os dados são válidos
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verifica se o id informado é o mesmo do modelo
-            if (id != model.Id)
-                return NotFound(new { message = "Conta não encontrada" });
-
             try
             {
+                var account = await context
+                .Accounts
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+                account.Title = model.Title;
+                account.Description = model.Description;
+                account.Value = model.Value;
+                account.CategoryId = model.CategoryId;
+
                 var result = Mapper.Map<AccountViewModel>(model);
-                context.Entry(model).State = EntityState.Modified;
                 await context.SaveChangesAsync();
-                return result;
+                return Ok(result);
             }
             catch (Exception ex)
             {
