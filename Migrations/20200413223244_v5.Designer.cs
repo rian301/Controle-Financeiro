@@ -3,14 +3,16 @@ using ControleFinanceiro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ControleFinanceiro.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200413223244_v5")]
+    partial class v5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,7 +60,12 @@ namespace ControleFinanceiro.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Categoria");
                 });
@@ -92,8 +99,14 @@ namespace ControleFinanceiro.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<float>("Balance")
+                        .HasColumnType("real");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Fund")
+                        .HasColumnType("real");
 
                     b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)");
@@ -114,6 +127,15 @@ namespace ControleFinanceiro.Migrations
                     b.HasOne("ControleFinanceiro.Models.CategoryModel", "Category")
                         .WithMany("Accounts")
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.CategoryModel", b =>
+                {
+                    b.HasOne("ControleFinanceiro.Models.UserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

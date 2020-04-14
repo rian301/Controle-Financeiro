@@ -16,6 +16,7 @@ namespace ControleFinanceiro.Data
 
         public DbSet<UserModel> Users { get; set; }
 
+        public DbSet<UserCategoryModel> UserCategory { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

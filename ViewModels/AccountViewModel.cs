@@ -12,7 +12,5 @@
         public string Description { get; set; }
 
         public float Value { get; set; }
-
-        public CategoryViewModel Category { get; set; }
     }
 }

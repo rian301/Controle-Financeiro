@@ -5,13 +5,9 @@ namespace ControleFinanceiro.Models
 {
     public class CategoryModel
     {
-        public int Id { get; set; }
+        public int Id { get; private set; }
 
-        public int UserId { get; set; }
-
-        public string Title { get; set; }
-
-        public UserModel User { get; set; }
+        public string Title { get; private set; }
 
         [JsonIgnore]
         public virtual IList<AccountModel> Accounts { get; set; }
@@ -19,6 +15,11 @@ namespace ControleFinanceiro.Models
         public CategoryModel()
         {
             Accounts = new List<AccountModel>();
+        }
+
+        public void SetTitle(string title)
+        {
+            Title = title;
         }
     }
 }

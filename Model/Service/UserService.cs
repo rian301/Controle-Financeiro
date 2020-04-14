@@ -1,5 +1,7 @@
 ﻿using ControleFinanceiro.Data;
+using ControleFinanceiro.DTO;
 using ControleFinanceiro.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
@@ -39,6 +41,24 @@ namespace ControleFinanceiro.Model.Service
                 .FirstOrDefault();
 
             return emailDb;
+        }
+
+        public void UpdateUser(UserDTO dto)
+        {
+
+            var userDb = FindUserById(dto.Id.Value);
+
+            userDb.Update(dto.Email, dto.UserName, dto.Password, dto.Salary);
+
+            _context.SaveChangesAsync();
+        }
+
+        public UserModel FindUserById(int idUser)
+        {
+            return _context.Users
+                .Where(x => x.Id == idUser)
+                .Include(y => y.Categories)
+                .FirstOrDefault();
         }
     }
 }

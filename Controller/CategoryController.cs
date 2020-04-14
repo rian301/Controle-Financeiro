@@ -89,9 +89,10 @@ namespace Backoffice.Controllers
                     .Where(x => x.Id == id)
                     .FirstOrDefaultAsync();
 
-                category.Title = model.Title;
+                category.SetTitle(model.Title);
+
                 var result = Mapper.Map<CategoryViewModel>(model);
-               await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return Ok(result);
             }
             catch (DbUpdateConcurrencyException)

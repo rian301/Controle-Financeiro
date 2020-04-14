@@ -13,7 +13,6 @@ namespace ControleFinanceiro.Map
 
             builder.HasKey(x => x.Id);
 
-            builder.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
         }
     }
 }

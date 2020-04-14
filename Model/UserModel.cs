@@ -5,25 +5,37 @@ namespace ControleFinanceiro.Models
 {
     public class UserModel
     {
-        public UserModel(float balance)
-        {
-            Balance = balance;
-        }
+        public int Id { get; private set; }
 
-        public int Id { get; set; }
+        public string Email { get; private set; }
 
-        public string Email { get; set; }
+        public string UserName { get; private set; }
 
-        public string UserName { get; set; }
+        public string Password { get; private set; }
 
-        public string Password { get; set; }
-
-        public float Salary { get; set; }
-
-        public float Balance { get; set; }
+        public float Salary { get; private set; }
 
         public IList<UserCategoryModel> Categories { get; set; }
 
+
+        public UserModel(string email, string userName, string password, float salary)
+        {
+            Email = email;
+            UserName = userName;
+            Password = password;
+            Salary = salary;
+
+            Categories = new List<UserCategoryModel>();
+        }
+
+        public void Update(string email, string userName, string password, float? salary)
+        {
+            Email = email;
+            UserName = userName;
+            Password = password;
+            Salary = salary == null? Salary : salary.Value;
+
+        }
     }
 }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using ControleFinanceiro.Data;
+using ControleFinanceiro.DTO;
 using ControleFinanceiro.Model.Service;
 using ControleFinanceiro.Models;
 using ControleFinanceiro.ViewModels;
@@ -40,28 +41,30 @@ namespace Backoffice.Controllers
         [HttpGet]
         [Route("{id:int}")]
 
-        public async Task<ActionResult<UserViewModel>> GetById([FromServices] DataContext context, int id)
+        public async Task<ActionResult<UserCategoryModel>> GetById([FromServices] DataContext context, int id)
         {
             try
             {
                 AccontService _accontService = new AccontService(context);
-                var salaries  = _accontService.TotalAccounts(id);
-                var saldo = _accontService.Saldo(id);
+                UserService _userService = new UserService(context);
 
-                var user = await context
-                .Users
-                .Where(x => x.Id == id)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
-                user.Balance = saldo;
-                // <Para onde vai ser covertido> | (Fonte de dados). Converte o () para <>
-                var result = Mapper.Map<UserViewModel>(user);
+                var balance = _accontService.CalcularBalancoPorIdUsuario(id);
 
-                return result;
+                var userMapped = Mapper.Map<UserViewModel>(_userService.FindUserById(id));
+                userMapped.Balance = balance;
+
+                var x = context.UserCategory
+                .Where(x => x.UserId == id)
+                .Include(x => x.User)
+                .Include(y => y.Category)
+                .ThenInclude(y => y.Accounts)
+                .FirstOrDefault();
+
+                return x;
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Não foi possível encontrar o usuário", ex});
+                return BadRequest(new { message = "Não foi possível encontrar o usuário", ex });
             }
         }
 
@@ -72,7 +75,7 @@ namespace Backoffice.Controllers
         [Route("")]
 
         // ActionResult = devolve para o front | FromBody = espera receber
-        public async Task<ActionResult<UserViewModel>> Post([FromServices] DataContext context, [FromBody] UserViewModel model)
+        public async Task<ActionResult<int>> Post([FromServices] DataContext context, [FromBody] UserDTO model)
         {
             // Verifica se os dados são válidos
             if (!ModelState.IsValid)
@@ -92,7 +95,7 @@ namespace Backoffice.Controllers
 
                     // Esconde a senha
                     model.Password = "";
-                    return model;
+                    return Ok(result.Id);
                 }
                 else
                     return BadRequest(new { message = "Não foi possível criar o usuário" });
@@ -102,12 +105,12 @@ namespace Backoffice.Controllers
                 return BadRequest(new { ex.Message });
             }
         }
-        #endregion
 
-        #region PUT
-        [HttpPut]
-        [Route("{id:int}")]
-        public async Task<ActionResult<UserViewModel>> Put([FromServices] DataContext context, int id, [FromBody] UserModel model)
+        [HttpPost]
+        [Route("category")]
+
+        // ActionResult = devolve para o front | FromBody = espera receber
+        public ActionResult<int> PostUserCategory([FromServices] DataContext context, [FromBody] UserCategoryDTO model)
         {
             // Verifica se os dados são válidos
             if (!ModelState.IsValid)
@@ -115,19 +118,38 @@ namespace Backoffice.Controllers
 
             try
             {
-                var user = await context
-                    .Users
-                    .Where(x => x.Id == id)
-                    .FirstOrDefaultAsync();
+                UserCategoryService _userCateogoryService = new UserCategoryService(context);
 
-                user.UserName = model.UserName;
-                user.Email = model.Email;
-                user.Password = model.Password;
-                user.Salary = model.Salary;
+                var newUserCategory = _userCateogoryService.CrateUserCategory(model);
 
-                var result = Mapper.Map<UserViewModel>(model);
-                await context.SaveChangesAsync();
-                return result;
+                return newUserCategory.Id;
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    ex.Message
+                });
+            }
+        }
+        #endregion
+
+        #region PUT
+        [HttpPut]
+        public async Task<ActionResult<UserViewModel>> Put([FromServices] DataContext context, [FromBody] UserDTO model)
+        {
+            // Verifica se os dados são válidos
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var userService = new UserService(context);
+
+                userService.UpdateUser(model);
+
+                return Ok("Usuário atualizado com sucesso.");
             }
             catch (Exception ex)
             {
